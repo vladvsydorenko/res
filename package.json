@@ -1,7 +1,8 @@
 {
-  "name": "@vladnet/bootstraps",
+  "name": "@vladnet/res",
+  "private": true,
   "version": "1.0.0",
-  "description": "Bootstrap projects",
+  "description": "Reactive Entity Systems",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -12,10 +13,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/webpack-env": "^1.13.6",
-    "css-loader": "^1.0.0",
-    "postcss-loader": "^3.0.0",
-    "postcss-scss": "^2.0.0",
-    "style-loader": "^0.22.1",
     "ts-loader": "^4.4.2",
     "typescript": "^3.0.1",
     "webpack": "^4.16.5",
