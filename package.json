@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Bootstrap projects",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "start": "webpack-serve --port 8080 --content .",
     "compile": "webpack"
