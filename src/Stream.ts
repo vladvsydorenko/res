@@ -1,7 +1,0 @@
-class Stream {
-
-    put() {
-
-    }
-
-}

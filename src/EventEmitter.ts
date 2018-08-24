@@ -7,7 +7,7 @@ interface TListener<T> {
 
 export type TListenerFn<T = any> = ((data: T) => any);
 
-export class EventEmitter<T = any> {
+export class EventEmitter<T = any, E = string> {
 
     private listenersByEvent: {
         [eventId: string]: TListener<T>[];
@@ -17,14 +17,14 @@ export class EventEmitter<T = any> {
         [listenerId: string]: TListener<T>;
     } = {};
 
-    public on(eventId: string, fn: TListenerFn, thisArg?: any): Symbol {
+    public on(eventId: E, fn: TListenerFn, thisArg?: any): Symbol {
 
         const id = Symbol();
-        const listeners = this.listenersByEvent[eventId] || (this.listenersByEvent[eventId] = []);
+        const listeners = this.listenersByEvent[eventId as any] || (this.listenersByEvent[eventId as any] = []);
         const listener = {
             id,
             fn,
-            eventId,
+            eventId: eventId as any,
             thisArg,
         };
 
@@ -54,12 +54,14 @@ export class EventEmitter<T = any> {
     }
 
     public emit(eventId: string, data: T): void {
+
         const listeners = this.listenersByEvent[eventId];
         if (!listeners) return;
 
         listeners.forEach(({ fn, thisArg }) => {
             fn.call(thisArg, data);
         });
+
     }
 
 }
