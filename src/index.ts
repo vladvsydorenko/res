@@ -1,6 +1,18 @@
-import { NodeManager, INode, TNodeSetter } from "./NodeManager";
+import { NodeManager, INode, TNodeSetter, ENodeManagerEventTypes } from "./NodeManager";
 
 const nm = new NodeManager();
+
+nm.on(ENodeManagerEventTypes.valueSet, (value, node, parentNode) => {
+    console.log("Value set", value, node, parentNode);
+});
+
+nm.on(ENodeManagerEventTypes.nodesConnected, (parentNodeId, childNodeId) => {
+    console.log("Nodes connected", parentNodeId, childNodeId);
+});
+
+nm.on(ENodeManagerEventTypes.nodesDisconnected, (parentNodeId, childNodeId) => {
+    console.log("Nodes disconnected", parentNodeId, childNodeId);
+});
 
 const merge = (): TNodeSetter => {
     const values: { [parentId: string]: ReadonlyArray<any> } = {};

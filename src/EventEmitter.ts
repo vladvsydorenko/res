@@ -1,23 +1,23 @@
-interface TListener<T> {
+interface TListener {
     id: Symbol;
-    fn: TListenerFn<T>;
+    fn: TListenerFn;
     eventId: string;
     thisArg: any;
 }
 
-export type TListenerFn<T = any> = ((data: T) => any);
+export type TListenerFn = ((...data: any[]) => any);
 
-export class EventEmitter<T = any, E = string> {
+export class EventEmitter {
 
     private listenersByEvent: {
-        [eventId: string]: TListener<T>[];
+        [eventId: string]: TListener[];
     } = {};
 
     private listeners: {
-        [listenerId: string]: TListener<T>;
+        [listenerId: string]: TListener;
     } = {};
 
-    public on(eventId: E, fn: TListenerFn, thisArg?: any): Symbol {
+    public on(eventId: string, fn: TListenerFn, thisArg?: any): Symbol {
 
         const id = Symbol();
         const listeners = this.listenersByEvent[eventId as any] || (this.listenersByEvent[eventId as any] = []);
@@ -53,13 +53,13 @@ export class EventEmitter<T = any, E = string> {
 
     }
 
-    public emit(eventId: string, data: T): void {
+    public emit(eventId: string, data: any[]): void {
 
         const listeners = this.listenersByEvent[eventId];
         if (!listeners) return;
 
         listeners.forEach(({ fn, thisArg }) => {
-            fn.call(thisArg, data);
+            fn.apply(thisArg, data);
         });
 
     }
