@@ -21,14 +21,9 @@ export enum ENodeManagerEventTypes {
 
 export class NodeManager {
 
-    private nodes: {
-        [streamId: string]: INode;
-    } = {};
+    private nodes: { [streamId: string]: INode; } = {};
 
-    private connections: {
-        // source id -> target ids
-        [sourceStreamId: string]: (string | Symbol)[];
-    } = {};
+    private connections: { [sourceStreamId: string]: (string | Symbol)[]; } = {};
 
     private eventEmitter = new EventEmitter();
 

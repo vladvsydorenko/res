@@ -9,13 +9,8 @@ export type TListenerFn = ((...data: any[]) => any);
 
 export class EventEmitter {
 
-    private listenersByEvent: {
-        [eventId: string]: TListener[];
-    } = {};
-
-    private listeners: {
-        [listenerId: string]: TListener;
-    } = {};
+    private listenersByEvent: { [eventId: string]: TListener[]; } = {};
+    private listeners: { [listenerId: string]: TListener; } = {};
 
     public on(eventId: string, fn: TListenerFn, thisArg?: any): Symbol {
 
