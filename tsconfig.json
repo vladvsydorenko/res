@@ -7,7 +7,7 @@
     "noImplicitAny": true,
     "declaration": true,
     "declarationDir": ".",
-    "lib": ["dom", "es2015"]
+    "lib": ["dom", "es2015", "es7"]
   },
   "exclude": [
     "test"
