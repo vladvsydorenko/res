@@ -20,7 +20,7 @@ export class NodeManager<T> {
     // target => sources
     private targetToSourcesConnections: THash<TId[]> = {};
 
-    // applied to connections transforms, sourceNodeId => transformId
+    // applied to connections transforms, targetNodeId => transformId
     private appliedTransforms: THash<TId> = {};
 
     public setNode(node: INode<T>, source: INode<T> = node) {
@@ -45,10 +45,23 @@ export class NodeManager<T> {
     public setNodeConnection(sourceNodeId: TId, targetNodeId: TId) {
         insertInHashOfArrays(targetNodeId, sourceNodeId, this.sourceToTargetsConnections);
         insertInHashOfArrays(sourceNodeId, targetNodeId, this.targetToSourcesConnections);
+
+        const sourceNode = this.nodes[<string>sourceNodeId];
+
+        if (!sourceNode) return;
+
+        this.setNode({
+            id: targetNodeId,
+            value: sourceNode.value,
+        });
     }
 
     public setTransform(transformId: TId, transform: TTransform<T>) {
         this.transforms[<string>transformId] = transform;
+    }
+
+    public applyTransform(transformId: TId, nodeId: TId) {
+        this.appliedTransforms[<string>nodeId] = transformId;
     }
 
 }
