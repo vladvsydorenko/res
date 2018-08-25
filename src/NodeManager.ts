@@ -1,123 +1,64 @@
-import { EventEmitter, TListenerFn } from "./EventEmitter";
+export type TNodeSetter<T> = (
+    newNode: Readonly<INode<T>>,
+    oldNode: Readonly<INode<T>>,
+    parentNode: Readonly<INode<T>> | null,
+    manager: Readonly<NodeManager<T>>
+) => INode<T>;
 
-export type TNodeSetter = (
-    value: ReadonlyArray<any>,
-    node: Readonly<INode>,
-    parentNode: Readonly<INode> | null,
-    nm: NodeManager
-) => INode;
-
-export interface INode {
-    id: string | Symbol;
-    value: any;
-    setter: TNodeSetter;
+export interface INode<T> {
+    readonly id: string | symbol;
+    readonly value: T;
 }
 
-export enum ENodeManagerEventTypes {
-    valueSet = "valueSet",
-    nodesConnected = "nodesConnected",
-    nodesDisconnected = "nodesDisconnected",
-}
+export class NodeManager<T = any[]> {
 
-export class NodeManager {
+    private nodes: { [nodeId: string]: INode<T> } = {};
+    private transforms: { [nodeId: string]: TNodeSetter<T> } = {};
+    private connections: { [nodeId: string]: (string | symbol)[] } = {};
 
-    private nodes: { [streamId: string]: INode; } = {};
+    public setNode(node: INode<T>, parent?: INode<T>): INode<T> {
+        const nodeId = <string>node.id;
+        const oldNode = this.nodes[nodeId];
 
-    private connections: { [sourceStreamId: string]: (string | Symbol)[]; } = {};
+        const transform = this.transforms[nodeId];
+        const resultNode = transform ? transform(node, oldNode, parent, this) : node;
+        this.nodes[nodeId] = resultNode;
 
-    private eventEmitter = new EventEmitter();
+        this.updateConnectedNodes(resultNode);
 
-    public createNode(nodeId: string | Symbol, setter: TNodeSetter = NodeManager.defaultNodeSetter, value: any[] = []) {
-        this.nodes[<string>nodeId] = {
+        return resultNode;
+    }
+
+    public getNode(nodeId: string | symbol) {
+        return this.nodes[<string>nodeId];
+    }
+
+    public setTransform(nodeId: string | symbol, setter: TNodeSetter<T>) {
+        this.transforms[<string>nodeId] = setter;
+    }
+
+    public setConnection(parentNodeId: string | symbol, childNodeId: string | symbol) {
+        const prevConnections = this.connections[<string>parentNodeId] || [];
+
+        if (prevConnections && prevConnections.indexOf(childNodeId) !== -1) return;
+
+        this.connections[<string>parentNodeId] = [
+            ...(prevConnections ? prevConnections : []),
+            childNodeId,
+        ];
+    }
+
+    private updateConnectedNodes(node: INode<T>) {
+        const nodeConnections = this.connections[<string>node.id];
+
+        console.log('update children?', node.id);
+
+        if (!nodeConnections) return;
+
+        nodeConnections.forEach(nodeId => this.setNode({
             id: nodeId,
-            value,
-            setter,
-        };
+            value: node.value,
+        }, node));
+
     }
-
-    public setValue(nodeId: string | Symbol, value: any[], parentNode?: Readonly<INode>) {
-        const node = this.nodes[<string>nodeId];
-        if (!node) return;
-
-        const currentValue = node.value;
-        const resultNode = node.setter(value, node, parentNode, this);
-
-        this.nodes[<string>nodeId] = resultNode;
-
-        // if nothing was changed
-        if (resultNode.value === currentValue) return;
-
-        this.eventEmitter.emit(ENodeManagerEventTypes.valueSet, [value, node, parentNode, this]);
-
-        const connections = this.connections[<string>nodeId];
-        if (!connections) return;
-
-        connections.forEach((nodeId) => {
-            this.setValue(nodeId, resultNode.value, resultNode);
-        });
-    }
-
-    public getValue(nodeId: string | Symbol): ReadonlyArray<any> {
-        const node = this.nodes[<string>nodeId];
-
-        if (node) return node.value;
-        return [];
-    }
-
-    public connectNodes(parentNodeId: string | Symbol, childNodeId: string | Symbol) {
-        if (
-            this.isConnected(parentNodeId, childNodeId) ||
-            parentNodeId === childNodeId
-        ) return;
-
-        this.connections[<string>parentNodeId] = [
-            ...(this.connections[parentNodeId as string] || []),
-            childNodeId
-        ];
-
-        this.eventEmitter.emit(ENodeManagerEventTypes.nodesConnected, [parentNodeId, childNodeId, this]);
-    }
-
-    public disconnectNodes(parentNodeId: string | Symbol, childNodeId: string | Symbol) {
-        const connections = this.connections[<string>parentNodeId];
-        if (!connections) return;
-
-        const index = connections.indexOf(childNodeId);
-        if (index === -1) return;
-
-        this.connections[<string>parentNodeId] = [
-            ...connections.slice(0, index),
-            ...connections.slice(index + 1),
-        ];
-
-        this.eventEmitter.emit(ENodeManagerEventTypes.nodesDisconnected, [parentNodeId, childNodeId, this]);
-    }
-
-    public getConnectedNodes(nodeId: string | Symbol): (string | Symbol)[] {
-        return this.connections[<string>nodeId] || [];
-    }
-
-    public isConnected(parentNodeId: string | Symbol, childNodeId: string | Symbol): boolean {
-        const connections = this.connections[<string>parentNodeId];
-        if (!connections) return false;
-
-        return connections.indexOf(parentNodeId) > -1;
-    }
-
-    public on(eventType: ENodeManagerEventTypes, listener: TListenerFn, thisArg?: any): Symbol {
-        return this.eventEmitter.on(eventType, listener, thisArg);
-    }
-
-    public off(listenerId: Symbol) {
-        return this.eventEmitter.off(listenerId);
-    }
-
-    static defaultNodeSetter(value: ReadonlyArray<any>, node: Readonly<INode>) {
-        return {
-            ...node,
-            value,
-        };
-    }
-
 }
-
