@@ -1,32 +1,12 @@
-import { NodeManager, ENodeManagerEvents } from "./NodeManager";
+import { NodeManager } from "./NodeManager";
 
-const nm = new NodeManager<number[]>();
+const nm = new NodeManager<any[]>();
 
-nm.connectNodes("entities", "evenNumbers");
-nm.connectNodes("entities", "greaterThen10");
-nm.connectManyNodes(["entities", "evenNumbers", "greaterThen10"]);
+nm.setNodeConnection("entities", "users");
 
-nm.setTransform("evenNumbers", node => {
-    return {
-        id: node.id,
-        value: node.value.filter(v => v % 2),
-    };
-});
-
-nm.setTransform("greaterThen10", node => {
-    return {
-        id: node.id,
-        value: node.value.filter(v => v > 10),
-    };
-});
-
-nm.on(ENodeManagerEvents.set, (node, parent, nm) => {
-    // console.log("set", node, parent, nm);
-});
-
-nm.setManyNodes([{
+nm.setNode({
     id: "entities",
-    value: [1, 2, 3, 20],
-}]);
+    value: [1, 2, 3],
+});
 
-console.log(nm.getTargetNodes("entities"));
+console.log(nm);
