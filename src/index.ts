@@ -1,30 +1,14 @@
 import { NodeManager } from "./NodeManager";
 
-const nm = new NodeManager<any[]>();
+const nm = new NodeManager();
 
-nm.setNode({
-    id: "numbers",
-    value: [1, 2, 3],
-});
+nm.setNode({ id: "entities", value: [] });
 
-nm.setNodeConnection("numbers", "even");
-nm.setNodeConnection("numbers", "odd");
+// set exactly what is passed
+nm.setConnections("entities", ["users", "number", "others"]);
+// insert into already set if any
+nm.insertConnections("entities", ["admins"]);
 
-nm.setNodeTransforms("even", ["even"]);
-nm.setNodeTransforms("odd", ["odd"]);
-
-nm.addTransform("even", (node) => {
-    return {
-        id: node.id,
-        value: node.value.filter(v => v % 2),
-    };
-});
-
-nm.addTransform("odd", (node) => {
-    return {
-        id: node.id,
-        value: node.value.filter(v => v % 2 === 0),
-    };
-});
-
-console.log(nm);
+nm.setNodeTransforms("users", ["users"]);
+nm.insertNodeTransforms("users", ["users"]);
+nm.registerNodeTransforms("users", () => {});
