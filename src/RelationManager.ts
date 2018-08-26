@@ -22,4 +22,12 @@ export class RelationManager {
         });
     }
 
+    public getTargets(sourceId: TId) {
+        return this.targets[<string>sourceId] || [];
+    }
+
+    public getSources(targetId: TId) {
+        return this.sources[<string>targetId] || [];
+    }
+
 }

@@ -1,24 +1,48 @@
 import { RelationManager } from "./RelationManager";
-import { TId } from "./types";
+import { TId, THash } from "./types";
 
 export class NodeManager<T> {
 
-    private nodeRelations = new RelationManager();
+    private nodes: THash<any> = {};
+    private transforms: THash<any> = {};
+
+    private nodeConnections = new RelationManager();
+    private transformConnections = new RelationManager();
+
+    // -----------------------------------------------------------------------
+    // Relations
+    // -----------------------------------------------------------------------
 
     public setNodeTargets(nodeId: TId, targetNodeIds: TId[]) {
-        this.nodeRelations.setTargets(nodeId, targetNodeIds);
+        this.nodeConnections.setTargets(nodeId, targetNodeIds);
     }
 
     public getNodeTargets(nodeId: TId) {
-        return this.nodeRelations.targets[<string>nodeId];
+        return this.nodeConnections.getTargets(nodeId);
     }
 
     public setNodeSources(nodeId: TId, sourceNodeIds: TId[]) {
-        this.nodeRelations.setSources(nodeId, sourceNodeIds);
+        this.nodeConnections.setSources(nodeId, sourceNodeIds);
     }
 
     public getNodeSources(nodeId: TId) {
-        return this.nodeRelations.sources[<string>nodeId];
+        return this.nodeConnections.sources[<string>nodeId];
     }
 
+    // -----------------------------------------------------------------------
+    // Transforms
+    // -----------------------------------------------------------------------
+
+    public setNodeTransforms(nodeId: TId, transformIds: TId[]) {
+        this.transformConnections.setTargets(nodeId, transformIds);
+    }
+    public setTransformNodes(transformId: TId, nodeIds: TId[]) {
+        this.transformConnections.setSources(transformId, nodeIds);
+    }
+    public getNodeTransforms(nodeId: TId) {
+        return this.transformConnections.getTargets(nodeId);
+    }
+    public getTransformNodes(transformId: TId) {
+        return this.transformConnections.getSources(transformId);
+    }
 }
