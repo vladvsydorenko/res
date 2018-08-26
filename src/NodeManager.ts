@@ -1,5 +1,6 @@
 import { RelationManager } from "./RelationManager";
 import { TId, THash } from "./types";
+import { WeakRelationManager } from "./WeakRelationManager";
 
 export interface INode<T> {
     id: TId;
@@ -11,40 +12,47 @@ export type TTransform<T> = (
     oldNode: INode<T>,
     sourceNode: INode<T>,
     nodeManager: NodeManager<T>
-) => INode<T>;
+) => T;
 
 export class NodeManager<T> {
 
     private nodes: THash<INode<T>> = {};
-    private transforms: THash<TTransform<T>> = {};
 
     private nodeConnections = new RelationManager();
-    private transformConnections = new RelationManager();
+    private transformConnections = new WeakRelationManager<TTransform<T>>();
 
     // -----------------------------------------------------------------------
     // Nodes
     // -----------------------------------------------------------------------
+
     public setNode(node: INode<T>, source = node) {
-        const nodeId = <string>node.id;
-
         const newNode = this.applyTransforms(node, source);
+        const targetNodeIds = this.nodeConnections.getTargets(node.id);
 
-        this.nodes[nodeId] = newNode;
+        this.nodes[<string>node.id] = newNode;
+
+        targetNodeIds.forEach(targetNodeId => {
+            this.setNode({
+                id: targetNodeId,
+                value: newNode.value,
+            }, node);
+        });
     }
 
     private applyTransforms(node: INode<T>, source: INode<T>) {
-        const transformIds = this.getNodeTransforms(<string>node.id);
+        const transforms = this.getNodeTransforms(<string>node.id);
 
-        if (transformIds.length === 0) return node;
+        if (transforms.length === 0) return node;
 
         let oldNode = this.nodes[<string>node.id];
 
-        return transformIds.reduce((newNode, transformId) => {
-            const transform = this.transforms[<string>transformId];
-
+        return transforms.reduce((newNode, transform) => {
             if (!transform) return;
 
-            const resultNode = transform(newNode, oldNode, source, this);
+            const resultNode = {
+                id: node.id,
+                value: transform(newNode, oldNode, source, this),
+            };
 
             oldNode = newNode;
 
@@ -76,20 +84,20 @@ export class NodeManager<T> {
     // Transform Connections
     // -----------------------------------------------------------------------
 
-    public setNodeTransforms(nodeId: TId, transformIds: TId[]) {
-        this.transformConnections.setTargets(nodeId, transformIds);
+    public setNodeTransforms(nodeId: TId, transforms: TTransform<T>[]) {
+        this.transformConnections.setSources(nodeId, transforms);
     }
 
-    public setTransformNodes(transformId: TId, nodeIds: TId[]) {
-        this.transformConnections.setSources(transformId, nodeIds);
+    public setTransformNodes(transformId: TTransform<T>, nodeIds: TId[]) {
+        this.transformConnections.setTargets(transformId, nodeIds);
     }
 
     public getNodeTransforms(nodeId: TId) {
-        return this.transformConnections.getTargets(nodeId);
+        return this.transformConnections.getSources(nodeId);
     }
 
-    public getTransformNodes(transformId: TId) {
-        return this.transformConnections.getSources(transformId);
+    public getTransformNodes(transformId: TTransform<T>) {
+        return this.transformConnections.getTargets(transformId);
     }
 
 }
