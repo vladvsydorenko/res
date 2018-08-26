@@ -7,4 +7,4 @@ nm.setNodeTargets("admins", ["superAdmins", "justAdmins"]);
 
 nm.setTransformNodes("filterAdmins", ["admin"]);
 
-console.log(nm);
+console.log(nm.getTransformNodes("filterAdmins"));
