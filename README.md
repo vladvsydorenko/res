@@ -13,3 +13,9 @@ Few notes:
     - `setConnections`
 - Bulk
     - Bulk action `shouldn't` be reactive while setting. Then recalculate all
+
+How to connect nodes
+1. Set a connection between two nodes
+2. Add a transform function
+3. Connect a target node and a transform if needed
+4. Set a source node in connection

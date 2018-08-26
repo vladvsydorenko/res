@@ -2,18 +2,7 @@ import { NodeManager } from "./NodeManager";
 
 const nm = new NodeManager();
 
-nm.setNode({ id: "entities", value: [] });
+nm.setNodeTargets("users", ["admins", "moderators", "simple"]);
+nm.setNodeTargets("admins", ["superAdmins", "justAdmins"]);
 
-// // set exactly what is passed
-// nm.setConnections("entities", ["users", "number", "others"]);
-// // insert into already set if any
-// nm.insertConnections("entities", ["admins"]);
-
-// nm.setNodeTransforms("users", ["users"]);
-// nm.insertNodeTransforms("users", ["users"]);
-// nm.registerNodeTransforms("users", () => {});
-
-nm.setConnections("entities", ["users", "animals"]);
-nm.insertConnections("entities", ["users2", "animals2"]);
-
-console.log(nm);
+debugger;
