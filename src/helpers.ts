@@ -1,26 +1,36 @@
-
 export namespace ArrayHelpers {
 
-    export const pushUnique = <T>(value: T, arr: T[]) => {
-        if (!arr.includes(value)) arr.push(value);
+    export const filterOne = (arr: any[], fn: (value: any, index: number) => boolean) => {
+        let index = -1;
 
-        return arr;
+        arr.some((value, i) => {
+            if (fn(value, i)) index = i;
+            return i > -1;
+        });
+
+        if (index === -1) return [...arr];
+
+        return [
+            ...arr.slice(0, index),
+            ...arr.slice(index + 1),
+        ];
     }
 
-    export const mergeUnique = <T>(values: T[], arr: T[]) => {
-        return values.reduce((acc, value) => {
-            return pushUnique(value, acc);
-        }, arr);
-    }
+    export const pushUnique = (arr: any[], value: any, fn: (value: any, index: number) => boolean) => {
+        let index = -1;
 
-    export const removeElement = <T>(value: T, arr: T[]) => {
-        const index = arr.indexOf(value);
+        arr.some((value, i) => {
+            if (fn(value, i)) index = i;
+            return i > -1;
+        });
 
-        if (index === -1) return arr;
+        if (index === -1) return [...arr, value];
 
-        arr.splice(index, 1);
-
-        return arr;
+        return [
+            ...arr.slice(0, index),
+            ...arr.slice(index + 1),
+            value,
+        ];
     }
 
 }
