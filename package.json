@@ -7,16 +7,34 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "webpack-serve --port 8080 --content .",
+    "test": "jest",
     "compile": "webpack"
   },
   "author": "Vlad Sydorenko",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^23.3.1",
     "@types/webpack-env": "^1.13.6",
+    "jest": "^23.5.0",
+    "ts-jest": "^23.1.4",
     "ts-loader": "^4.4.2",
     "typescript": "^3.0.1",
     "webpack": "^4.16.5",
     "webpack-command": "^0.4.1",
     "webpack-serve": "^2.0.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

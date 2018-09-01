@@ -73,7 +73,7 @@ export class EntityManager {
 
     public getComponent(entity: IEntity, ComponentType: Function): IComponent | undefined {
         const componentsByEntity = this.componentsByEntity.get(entity);
-        return componentsByEntity.find(component => component.constructor === ComponentType);
+        return componentsByEntity ? componentsByEntity.find(component => component.constructor === ComponentType) : undefined;
     }
 
     public getComponentsByEntity(entity: IEntity): ReadonlyArray<IComponent> {
