@@ -6,14 +6,14 @@ export interface IEntity {
     name?: string;
 }
 
-export interface IComponentData {
+export interface IComponent {
     new(): any;
 }
 
 export class EntityManager {
 
-    private componentsByType = new WeakMap<Function, IComponentData[]>();
-    private componentsByEntity = new WeakMap<IEntity, IComponentData[]>();
+    private componentsByType = new WeakMap<Function, IComponent[]>();
+    private componentsByEntity = new WeakMap<IEntity, IComponent[]>();
     private entitiesByType = new WeakMap<Function, IEntity[]>();
 
     public setComponent(entity: IEntity, data: any) {
@@ -25,14 +25,14 @@ export class EntityManager {
 
         // if (!componentsByType || !componentsByEntity) return;
 
-        let componentByTypeIndex = ArrayHelpers.findIndex<IComponentData>(componentsByType, (v, index) => {
+        let componentByTypeIndex = ArrayHelpers.findIndex<IComponent>(componentsByType, (v, index) => {
             // console.log(v, index);
             return entitiesByType[index].id === entity.id
         });
         if (componentByTypeIndex === -1) componentByTypeIndex = componentsByType.length;
         const newComponentsByType = ArrayHelpers.splice(componentsByType, componentByTypeIndex, data);
 
-        let componentByEntityIndex = ArrayHelpers.findIndex<IComponentData>(componentsByEntity, v => v.constructor === ComponentType);
+        let componentByEntityIndex = ArrayHelpers.findIndex<IComponent>(componentsByEntity, v => v.constructor === ComponentType);
         if (componentByEntityIndex === -1) componentByEntityIndex = componentsByEntity.length;
         const newComponentsByEntity = ArrayHelpers.splice(componentsByEntity, componentByEntityIndex, data);
 
@@ -71,11 +71,16 @@ export class EntityManager {
         return componentsByEntity.some(component => component.constructor === ComponentType);
     }
 
-    public getComponentsByEntity(entity: IEntity): ReadonlyArray<IComponentData> {
+    public getComponent(entity: IEntity, ComponentType: Function): IComponent | undefined {
+        const componentsByEntity = this.componentsByEntity.get(entity);
+        return componentsByEntity.find(component => component.constructor === ComponentType);
+    }
+
+    public getComponentsByEntity(entity: IEntity): ReadonlyArray<IComponent> {
         return this.componentsByEntity.get(entity);
     }
 
-    public getComponentsByType(ComponentType: Function): ReadonlyArray<IComponentData> {
+    public getComponentsByType(ComponentType: Function): ReadonlyArray<IComponent> {
         return this.componentsByType.get(ComponentType);
     }
 
