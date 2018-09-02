@@ -1,4 +1,3 @@
-import { StringHelpers } from "../../helpers";
 import { IComponentTypeId } from "./IComponentTypeId";
 
 export class EntityTypeManager {
